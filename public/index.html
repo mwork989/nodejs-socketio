@@ -1,0 +1,57 @@
+<html>
+<head>
+    <title>Chat Example</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script>
+        var socket = io.connect();
+
+        socket.on('chat', function (data) {
+            var msg = data.nick+':'+data.location+':'+data.message;
+            $('textarea').val($('textarea').val()+msg+'\n'); 
+        });
+
+        socket.on('userlist', (data)=>{
+            data.map((item)=>{
+                $('#activeuser').append(`UserId: <strong>${item}<strong><br/>`)
+            })
+            let total = data.length;
+            document.getElementById('listu').innerHTML= total
+            $('b').val(total);
+        })
+
+        // Handle UI
+        $(function() {
+            // Set nickname
+            $('#nick').on('click', function() {
+                socket.emit('nick', $('#nickText').val());
+            });
+            // Send chat message
+            $('#chat').on('click', function() {
+                socket.emit('chat', {
+                    message:$('#chatText').val()
+                });
+            });
+        });
+
+        var uiusers = sessionStorage.getItem('users');
+        console.log(uiusers)
+    </script>
+</head>
+<body>
+    <h1>Simple Chat with Node</h1>
+    <p>
+        <input id="nickText" type="text"/>
+        <button id="nick">Set Nickname</button>
+    </p>
+    <textarea style="height:300px;width:500px;"></textarea>
+    <p>
+        <input id="chatText" type="text"/>
+        <button id="chat">Send Chat Message</button>
+    </p>
+    <h2>Active User: <b id="listu"></b></h2>
+    <p id="activeuser">  
+       
+    </p>
+</body>
+</html>
